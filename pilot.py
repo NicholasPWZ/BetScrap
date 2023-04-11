@@ -12,21 +12,25 @@ def geturls(url):
     for i in url_odd:
         urls.append(i['url'])
     return urls
-
-capturar_odd = geturls("https://br.betano.com/sport/basquete/ligas/17106r/")
-
-for p in capturar_odd:
-    fonte_odd = requests.get(p).text
-    soup_odd = bs(fonte_odd, 'html.parser')
-    body_classe = soup_odd.find('body')
-    script = body_classe.find('script').string
-    index_dict = script.find('{')
-    script = script[index_dict:]
-    dict_odds = json.loads(script)
-    dict_section = dict_odds['data']['event']['markets'][0]
     
-    for i in dict_odds['data']['event']['markets']:
-        print(i['name'])
-        for x in i['selections']:
-            print(x['name'], x['price'], sep='-->')
-    break
+def getodd(url):
+    capturar_odd = geturls(url)
+    data_storage = {}
+    for p in capturar_odd:
+        fonte_odd = requests.get(p).text
+        soup_odd = bs(fonte_odd, 'html.parser')
+        body_classe = soup_odd.find('body')
+        script = body_classe.find('script').string
+        index_dict = script.find('{')
+        script = script[index_dict:]
+        dict_odds = json.loads(script)
+        nome_partida = dict_odds['data']['event']['shortName']
+        data_storage[nome_partida] = { }
+        data_storage['url'] = p
+        for i in dict_odds['data']['event']['markets']:
+            data_storage[nome_partida][i['name']] = {}
+            for x in i['selections']:
+                data_storage[nome_partida][i['name']][x['name']] = x['price']
+                
+    return data_storage
+
