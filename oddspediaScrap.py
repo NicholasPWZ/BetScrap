@@ -21,7 +21,7 @@ for obj in application:
         url = partes[1].split('"')[0]
         lista_urls.append(url)
 
-
+data_storage = {}
 lista_urls = list(map(lambda x: x+'#odds', lista_urls))
 for i in lista_urls:
     if 'https://oddspedia.com/br/basquete' not in i:
@@ -31,7 +31,20 @@ for i in lista_urls:
     page_html = driver.page_source
     driver.quit()
     bsoup = bs(page_html, 'html.parser')
+    partida = bsoup.find('div', class_='tip-match__name t-ellipsis').text.strip()
+    data_storage[partida] = {}
     eoc_single = bsoup.find('div', class_='eoc-single')
-    print(eoc_single.find('span',class_='eoc-max-odds__odd__val'))
+    bookmaker_tag = eoc_single.find_all('div',class_='eoc-table__row__bookmaker')
+    bookmaker = [tag.get_text().strip() for tag in bookmaker_tag]
+    odds_tag = eoc_single.find_all('span', class_='bookmaker-link cursor-pointer')
+    odds = [tag.get_text().strip() for tag in odds_tag]
+    odds = odds[2:]
+    y = 0
+    for p in bookmaker:
+        data_storage[partida][p] = {}
+        data_storage[partida][p]['odd1'] =  odds[y]
+        data_storage[partida][p]['odd2'] =  odds[y+1]
+        y+=2
+    print(data_storage)
     
     break
