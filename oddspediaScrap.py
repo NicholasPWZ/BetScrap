@@ -31,7 +31,14 @@ for i in lista_urls:
     page_html = driver.page_source
     driver.quit()
     bsoup = bs(page_html, 'html.parser')
-    partida = bsoup.find('div', class_='tip-match__name t-ellipsis').text.strip()
+    data = bsoup.find('span', class_='event-start-date').text.strip()
+    partida = bsoup.find('title').text.strip()
+    partida = partida.split('»')
+    partida = partida[0] 
+    times = partida.split(' x ')
+    time1 = times[0]
+    time2 = times[-1]
+    partida += data
     data_storage[partida] = {}
     eoc_single = bsoup.find('div', class_='eoc-single')
     bookmaker_tag = eoc_single.find_all('div',class_='eoc-table__row__bookmaker')
@@ -42,9 +49,9 @@ for i in lista_urls:
     y = 0
     for p in bookmaker:
         data_storage[partida][p] = {}
-        data_storage[partida][p]['odd1'] =  odds[y]
-        data_storage[partida][p]['odd2'] =  odds[y+1]
+        data_storage[partida][p][time1] =  odds[y]
+        data_storage[partida][p][time2] =  odds[y+1]
         y+=2
-    print(data_storage)
-    
     break
+print(data_storage) 
+    
