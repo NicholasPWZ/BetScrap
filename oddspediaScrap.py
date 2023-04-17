@@ -45,6 +45,8 @@ for i in lista_urls:
     bookmaker = [tag.get_text().strip() for tag in bookmaker_tag]
     odds_tag = eoc_single.find_all('span', class_='bookmaker-link cursor-pointer')
     odds = [tag.get_text().strip() for tag in odds_tag]
+    odd1maior = 0.0
+    odd2maior = 0.0
     odds = odds[2:]
     y = 0
     for p in bookmaker:
@@ -52,6 +54,33 @@ for i in lista_urls:
         data_storage[partida][p][time1] =  odds[y]
         data_storage[partida][p][time2] =  odds[y+1]
         y+=2
-    break
-print(data_storage) 
+    for p in data_storage[partida]:
+        if float(data_storage[partida][p][time1]) > odd1maior:
+            odd1maior = float(data_storage[partida][p][time1])
+            casa1maior = p
+        if float(data_storage[partida][p][time2]) > odd2maior:
+            casa2maior = p
+            odd2maior = float(data_storage[partida][p][time2])
+    
+    stake = 100
+    def calc_percent(odd1, odd2):
+        return (1/odd1 + 1/odd2) * 100
+    
+    def calc_profit_money(odd1, odd2, stake):
+        return (stake / (calc_percent(odd1, odd2) / 100)) - stake
+    
+    def calc_profit_percent(odd1, odd2):
+        return(-100 * (1 - (odd1 * odd2 / (odd1 + odd2))))
+    
+    def calc_stake(odd1, odd2, stake):
+        percernt_odd1 = (1/odd1) * 100
+        percernt_odd2 = (1/odd2) * 100
+        stake_odd1 = (stake * percernt_odd1) / calc_percent(odd1, odd2)
+        stake_odd2 = (stake * percernt_odd2) / calc_percent(odd1, odd2)
+        return f'Stake na odd {odd1} X {stake_odd1} = {odd1 * stake_odd1}\nStake na odd {odd2} X {stake_odd2} = {odd2 * stake_odd2}'
+    print(partida, casa1maior ,odd1maior, casa2maior, odd2maior, '=', calc_profit_percent(odd1maior, odd2maior),'%', calc_stake(odd1maior, odd2maior, stake)  ) 
+
+
+
+
     
